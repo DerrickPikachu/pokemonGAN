@@ -4,42 +4,42 @@ from parameters import args
 
 
 class DCGenerator(nn.Module):
-    def __init__(self, latent_size: int, num_of_filter: int, img_channel: int):
+    def __init__(self, args):
         super(DCGenerator, self).__init__()
-        self.latent_size = latent_size
-        self.num_of_filter = num_of_filter
-        self.img_channel = img_channel
+        self.latent_size = args.latent_size
+        self.num_of_filter = args.num_of_gen_filter
+        self.img_channel = args.img_channel
 
         self.convT1 = nn.Sequential(
-            nn.ConvTranspose2d(self.latent_size, num_of_filter * 8, 4, 1, 0, bias=False),
-            nn.BatchNorm2d(num_of_filter * 8),
+            nn.ConvTranspose2d(self.latent_size, args.num_of_gen_filter * 8, 4, 1, 0, bias=False),
+            nn.BatchNorm2d(args.num_of_gen_filter * 8),
             nn.ReLU(True),
             # size (c, 4, 4)
         )
 
         self.convT2 = nn.Sequential(
-            nn.ConvTranspose2d(num_of_filter * 8, num_of_filter * 4, 4, 2, 1, bias=False),
-            nn.BatchNorm2d(num_of_filter * 4),
+            nn.ConvTranspose2d(args.num_of_gen_filter * 8, args.num_of_gen_filter * 4, 4, 2, 1, bias=False),
+            nn.BatchNorm2d(args.num_of_gen_filter * 4),
             nn.ReLU(True),
             # size (c, 8, 8)
         )
 
         self.convT3 = nn.Sequential(
-            nn.ConvTranspose2d(num_of_filter * 4, num_of_filter * 2, 4, 2, 1, bias=False),
-            nn.BatchNorm2d(num_of_filter * 2),
+            nn.ConvTranspose2d(args.num_of_gen_filter * 4, args.num_of_gen_filter * 2, 4, 2, 1, bias=False),
+            nn.BatchNorm2d(args.num_of_gen_filter * 2),
             nn.ReLU(True),
             # size (c, 16, 16)
         )
 
         self.convT4 = nn.Sequential(
-            nn.ConvTranspose2d(num_of_filter * 2, num_of_filter, 4, 2, 1, bias=False),
-            nn.BatchNorm2d(num_of_filter),
+            nn.ConvTranspose2d(args.num_of_gen_filter * 2, args.num_of_gen_filter, 4, 2, 1, bias=False),
+            nn.BatchNorm2d(args.num_of_gen_filter),
             nn.ReLU(True),
             # size (c, 32, 32)
         )
 
         self.convT_final = nn.Sequential(
-            nn.ConvTranspose2d(num_of_filter, img_channel, 4, 2, 1, bias=False),
+            nn.ConvTranspose2d(args.num_of_gen_filter, args.img_channel, 4, 2, 1, bias=False),
             nn.Tanh(),
             # size (c, 64, 64)
             # Use tanh to force all value in [-1, 1] section
@@ -59,39 +59,39 @@ class DCGenerator(nn.Module):
 
 
 class DCDiscriminator(nn.Module):
-    def __init__(self, num_of_filter: int, img_channel: int):
+    def __init__(self, args):
         super(DCDiscriminator, self).__init__()
 
         self.conv1 = nn.Sequential(
             # input is (nc) x 64 x 64
-            nn.Conv2d(img_channel, num_of_filter, 4, 2, 1, bias=False),
+            nn.Conv2d(args.img_channel, args.num_of_dis_filter, 4, 2, 1, bias=False),
             nn.LeakyReLU(0.2, inplace=True),
             # state size. (ndf) x 32 x 32
         )
 
         self.conv2 = nn.Sequential(
-            nn.Conv2d(num_of_filter, num_of_filter * 2, 4, 2, 1, bias=False),
-            nn.BatchNorm2d(num_of_filter * 2),
+            nn.Conv2d(args.num_of_dis_filter, args.num_of_dis_filter * 2, 4, 2, 1, bias=False),
+            nn.BatchNorm2d(args.num_of_dis_filter * 2),
             nn.LeakyReLU(0.2, inplace=True),
             # state size. (ndf*2) x 16 x 16
         )
 
         self.conv3 = nn.Sequential(
-            nn.Conv2d(num_of_filter * 2, num_of_filter * 4, 4, 2, 1, bias=False),
-            nn.BatchNorm2d(num_of_filter * 4),
+            nn.Conv2d(args.num_of_dis_filter * 2, args.num_of_dis_filter * 4, 4, 2, 1, bias=False),
+            nn.BatchNorm2d(args.num_of_dis_filter * 4),
             nn.LeakyReLU(0.2, inplace=True),
             # state size. (ndf*4) x 8 x 8
         )
 
         self.conv4 = nn.Sequential(
-            nn.Conv2d(num_of_filter * 4, num_of_filter * 8, 4, 2, 1, bias=False),
-            nn.BatchNorm2d(num_of_filter * 8),
+            nn.Conv2d(args.num_of_dis_filter * 4, args.num_of_dis_filter * 8, 4, 2, 1, bias=False),
+            nn.BatchNorm2d(args.num_of_dis_filter * 8),
             nn.LeakyReLU(0.2, inplace=True),
             # state size. (ndf*8) x 4 x 4
         )
 
         self.conv_final = nn.Sequential(
-            nn.Conv2d(num_of_filter * 8, 1, 4, 1, 0, bias=False),
+            nn.Conv2d(args.num_of_dis_filter * 8, 1, 4, 1, 0, bias=False),
             nn.Sigmoid()
         )
 
@@ -130,8 +130,8 @@ class WGAN:
 
 
 if __name__ == '__main__':
-    generator = DCGenerator(30, 64, 3)
-    discriminator = DCDiscriminator(32, 3)
+    generator = DCGenerator(args)
+    discriminator = DCDiscriminator(args)
 
     latent_code = torch.randn(30)
     img = generator(latent_code)
