@@ -10,9 +10,12 @@ def build_parser():
 
     parser.add_argument('--batch_size', default=64, type=int)
     parser.add_argument('--img_size', default=64, type=int)
-    parser.add_argument('--num_of_filter', default=64, type=int)
+    parser.add_argument('--num_of_gen_filter', default=64, type=int)
+    parser.add_argument('--num_of_dis_filter', default=64, type=int)
     parser.add_argument('--img_channel', default=3, type=int)
     parser.add_argument('--latent_size', default=30, type=int)
+    parser.add_argument('--lr', default=0.0002, type=float)
+    parser.add_argument('--beta1', default=0.5, type=float)
 
     return parser.parse_args()
 
