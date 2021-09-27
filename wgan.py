@@ -103,6 +103,32 @@ class DCDiscriminator(nn.Module):
         return self.conv_final(result)
 
 
+class WGAN:
+    def __init__(self, latent_size: int, num_of_gen_filter: int, num_of_dis_filter: int, img_channel: int):
+        self.latent_size = latent_size
+
+        # Initialize model
+        self.generator = DCGenerator(latent_size, num_of_gen_filter, img_channel)
+        self.discriminator = DCDiscriminator(num_of_dis_filter, img_channel)
+
+        # Initialize optimizer
+        # self.generator_optimizer = ?
+        # self.discriminator_optimizer = ?
+
+    def generate_img(self, num_of_img):
+        latent_code = torch.randn((num_of_img, self.latent_size))
+        return self.generator(latent_code)
+
+    def discriminate_img(self, img):
+        return self.discriminator(img)
+
+    def update_generator(self):
+        pass
+
+    def update_discriminator(self):
+        pass
+
+
 if __name__ == '__main__':
     generator = DCGenerator(30, 64, 3)
     discriminator = DCDiscriminator(32, 3)
